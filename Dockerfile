@@ -2,12 +2,12 @@
 FROM maven:3.9.9-eclipse-temurin-21-alpine AS build
 WORKDIR /app
 
-# Copy pom.xml from backend/backend and resolve dependencies
-COPY backend/backend/pom.xml .
+# Cache dependencies
+COPY backend/pom.xml .
 RUN mvn dependency:resolve -B || true
 
-# Copy source and build jar
-COPY backend/backend/src ./src
+# Build application
+COPY backend/src ./src
 RUN mvn clean package -DskipTests -B
 
 # Run stage
