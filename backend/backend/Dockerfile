@@ -14,9 +14,8 @@ RUN mvn clean package -DskipTests -B
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 
-# Create non-root user for security
-RUN addgroup -S appgroup && adduser -S appuser -G appgroup
-USER appuser
+# Create app directory with required writable folders for uploads and embedded database
+RUN mkdir -p /app/uploads /app/data && chmod -R 777 /app/uploads /app/data
 
 # Copy built artifact
 COPY --from=build /app/target/*.jar app.jar
