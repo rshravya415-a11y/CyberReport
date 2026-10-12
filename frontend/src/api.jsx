@@ -1,7 +1,9 @@
+
 import axios from "axios";
 
 const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || "/api";
+  import.meta.env.VITE_API_BASE_URL ||
+  "https://cyberreport-production-ac95.up.railway.app";
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -14,6 +16,7 @@ const api = axios.create({
 
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("cyberreport_token");
+
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -30,44 +33,61 @@ api.interceptors.request.use((config) => {
 });
 
 export const authAPI = {
-  register: (data) => api.post("/users/register", data),
-  login: (data) => api.post("/users/login", data),
-  logout: () => api.post("/logout"),
-  getProfile: () => api.get("/users/profile"),
-  updateProfile: (data) => api.put("/users/profile", data),
+  register: (data) => api.post("/api/users/register", data),
+  login: (data) => api.post("/api/users/login", data),
+  logout: () => api.post("/api/logout"),
+  getProfile: () => api.get("/api/users/profile"),
+  updateProfile: (data) => api.put("/api/users/profile", data),
 };
 
 export const complaintAPI = {
-  create: (data) => api.post("/complaints", data),
+  create: (data) => api.post("/api/complaints", data),
+
   uploadEvidence: (file) => {
     const formData = new FormData();
     formData.append("file", file);
-    return api.post("/complaints/upload", formData, {
+
+    return api.post("/api/complaints/upload", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
     });
   },
-  getMine: () => api.get("/complaints/my"),
-  getById: (id) => api.get(`/complaints/${id}`),
+
+  getMine: () => api.get("/api/complaints/my"),
+  getById: (id) => api.get(`/api/complaints/${id}`),
+
   track: (referenceNumber) =>
-    api.get(`/complaints/track/${encodeURIComponent(referenceNumber.trim())}`),
-  getEvidenceUrl: (fileName) => `${API_BASE_URL}/complaints/evidence/${fileName}`,
+    api.get(
+      `/api/complaints/track/${encodeURIComponent(
+        referenceNumber.trim()
+      )}`
+    ),
+
+  getEvidenceUrl: (fileName) =>
+    `${API_BASE_URL}/api/complaints/evidence/${fileName}`,
 };
 
 export const adminAPI = {
-  getDashboard: () => api.get("/admin/dashboard"),
-  getAllComplaints: () => api.get("/admin/complaints"),
-  getComplaintById: (id) => api.get(`/admin/complaints/${id}`),
+  getDashboard: () => api.get("/api/admin/dashboard"),
+  getAllComplaints: () => api.get("/api/admin/complaints"),
+  getComplaintById: (id) => api.get(`/api/admin/complaints/${id}`),
+
   updateStatus: (id, status, adminRemarks) =>
-    api.patch(`/admin/complaints/${id}/status`, { status, adminRemarks }),
+    api.patch(`/api/admin/complaints/${id}/status`, {
+      status,
+      adminRemarks,
+    }),
+
   updateRemarks: (id, adminRemarks) =>
-    api.patch(`/admin/complaints/${id}/remarks`, { adminRemarks }),
+    api.patch(`/api/admin/complaints/${id}/remarks`, {
+      adminRemarks,
+    }),
 };
 
 export const profileAPI = {
-  get: () => api.get("/users/profile"),
-  update: (data) => api.put("/users/profile", data),
+  get: () => api.get("/api/users/profile"),
+  update: (data) => api.put("/api/users/profile", data),
 };
 
 export default api;
