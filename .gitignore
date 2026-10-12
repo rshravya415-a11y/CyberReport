@@ -11,3 +11,4 @@ application-secrets.properties
 .DS_Store
 
 backend/backend/uploads/
+_backup_pre_audit/
