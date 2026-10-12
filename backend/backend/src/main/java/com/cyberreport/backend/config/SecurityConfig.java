@@ -112,25 +112,44 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOriginPatterns(List.of(
+
+        java.util.List<String> patterns = new java.util.ArrayList<>(java.util.Arrays.asList(
             "http://localhost:*",
             "http://127.0.0.1:*",
-            "https://*.vercel.app",
             "https://*.onrender.com",
+            "https://*.vercel.app",
             "https://*.netlify.app",
+            "https://*.railway.app",
             "https://*.koyeb.app",
-            "https://*"
+            "https://*.fly.dev",
+            "https://*.up.railway.app"
         ));
-        config.setAllowedMethods(List.of(
-            "GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"
+
+        // Read specific frontend URL from env (set this to your custom domain or Vercel URL)
+        String allowedOrigin = System.getenv("ALLOWED_ORIGIN");
+        if (allowedOrigin != null && !allowedOrigin.isBlank()) {
+            for (String o : allowedOrigin.split(",")) {
+                String trimmed = o.trim();
+                if (!trimmed.isEmpty()) {
+                    patterns.add(trimmed);
+                }
+            }
+        }
+
+        config.setAllowedOriginPatterns(patterns);
+
+        config.setAllowedMethods(java.util.Arrays.asList(
+            "GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD"
         ));
-        config.setAllowedHeaders(List.of(
-            "Authorization", "Content-Type", "X-User-Email", "Accept", "Origin", "X-Requested-With"
+        config.setAllowedHeaders(java.util.Arrays.asList(
+            "Authorization", "Content-Type", "X-User-Email", "Accept",
+            "Origin", "X-Requested-With", "Cache-Control"
         ));
-        config.setExposedHeaders(List.of(
-            "Content-Disposition"
+        config.setExposedHeaders(java.util.Arrays.asList(
+            "Content-Disposition", "X-Custom-Header"
         ));
         config.setAllowCredentials(true);
+        config.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);

@@ -16,7 +16,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -32,14 +31,6 @@ import com.cyberreport.backend.user.UserRepository;
 
 @RestController
 @RequestMapping("/api/complaints")
-@CrossOrigin(origins = {
-    "http://localhost:5173",
-    "http://localhost:5174",
-    "http://localhost:3000",
-    "http://127.0.0.1:5173",
-    "http://127.0.0.1:5174",
-    "http://127.0.0.1:3000"
-}, allowCredentials = "true")
 public class ComplaintController {
 
     private final ComplaintRepository complaintRepository;

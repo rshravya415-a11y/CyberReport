@@ -18,7 +18,9 @@ public class SpaController {
         "/admin/login",
         "/admin/dashboard",
         "/resources",
-        "/security-tools"
+        "/security-tools",
+        "/complaint/**",
+        "/complaints/**"
     })
     public String forwardSpaRoutes() {
         return "forward:/index.html";

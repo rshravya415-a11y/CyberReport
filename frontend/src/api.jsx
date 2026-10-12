@@ -1,9 +1,21 @@
-
 import axios from "axios";
 
-const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL ||
-  "https://cyberreport-production-ac95.up.railway.app";
+// Clean and normalize API base URL
+function getBaseUrl() {
+  const envUrl = import.meta.env.VITE_API_BASE_URL;
+  if (envUrl && typeof envUrl === "string" && envUrl.trim()) {
+    // Strip trailing slashes and trailing /api so endpoints can cleanly use /api/...
+    return envUrl.trim().replace(/\/+$/, "").replace(/\/api$/, "");
+  }
+  // In Vite dev mode, default to localhost:8080
+  if (import.meta.env.DEV) {
+    return "http://localhost:8080";
+  }
+  // In production, fallback to relative URL
+  return "";
+}
+
+const API_BASE_URL = getBaseUrl();
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -11,12 +23,12 @@ const api = axios.create({
     "Content-Type": "application/json",
   },
   withCredentials: true,
-  timeout: 20000,
+  timeout: 30000,
 });
 
+// Attach auth tokens and user identifier header
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("cyberreport_token");
-
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -31,6 +43,20 @@ api.interceptors.request.use((config) => {
 
   return config;
 });
+
+// User-friendly network error logging
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (!error.response) {
+      console.error(
+        `[CyberReport API Network Error] Backend at "${API_BASE_URL || window.location.origin}" is unreachable. Check service status, URL, or CORS.`,
+        error
+      );
+    }
+    return Promise.reject(error);
+  }
+);
 
 export const authAPI = {
   register: (data) => api.post("/api/users/register", data),
@@ -60,12 +86,12 @@ export const complaintAPI = {
   track: (referenceNumber) =>
     api.get(
       `/api/complaints/track/${encodeURIComponent(
-        referenceNumber.trim()
+        (referenceNumber || "").trim()
       )}`
     ),
 
   getEvidenceUrl: (fileName) =>
-    `${API_BASE_URL}/api/complaints/evidence/${fileName}`,
+    `${API_BASE_URL || ""}/api/complaints/evidence/${encodeURIComponent(fileName || "")}`,
 };
 
 export const adminAPI = {
